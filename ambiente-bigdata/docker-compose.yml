@@ -1,0 +1,80 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: "1234"
+      POSTGRES_DB: airflow
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    networks:
+      - bigdata
+
+  hadoop:
+    build:
+      context: ./hadoop
+    container_name: hadoop
+    hostname: hadoop
+    restart: unless-stopped
+    ports:
+      - "9870:9870"
+      - "8020:8020"
+      - "9864:9864"
+      - "9866:9866"
+      - "9867:9867"
+      - "8088:8088"
+      - "8042:8042"
+      - "19888:19888"
+    volumes:
+      - hadoop_nn:/opt/hadoop/data/nn
+      - hadoop_dn:/opt/hadoop/data/dn
+    healthcheck:
+      test: ["CMD-SHELL", "hdfs dfsadmin -safemode get | grep -q 'Safe mode is OFF'"]
+      interval: 10s
+      timeout: 10s
+      retries: 12
+      start_period: 30s
+    networks:
+      - bigdata
+
+  airflow:
+    image: apache/airflow:3.0.6
+    container_name: airflow
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+    environment:
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:1234@postgres:5432/airflow
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__CORE__FERNET_KEY: "9aSRWcNaMdK83b6W0pxq0aJ26rmt037VlXAsuZ5TvGg="
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_USERS: "admin:admin"
+      AIRFLOW__CORE__SIMPLE_AUTH_MANAGER_PASSWORDS_FILE: /opt/airflow/logs/simple_auth_manager_passwords.json.generated
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+    command: standalone
+    networks:
+      - bigdata
+
+networks:
+  bigdata:
+    name: bigdata
+
+volumes:
+  postgres_data:
+  hadoop_nn:
+  hadoop_dn:
+  airflow_logs:
