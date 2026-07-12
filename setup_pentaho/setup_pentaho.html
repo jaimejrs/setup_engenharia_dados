@@ -1,0 +1,717 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instalação do PDI (Pentaho Data Integration) — Passo a Passo</title>
+<style>
+  :root {
+    --bg: #ffffff;
+    --text: #1f2430;
+    --muted: #5b6472;
+    --accent: #b05c00;
+    --accent-bg: #fff2e2;
+    --card-bg: #f7f7f9;
+    --border: #e2e4e9;
+    --code-bg: #292d3a;
+    --code-text: #e6e6e6;
+    --warn-bg: #fff4e5;
+    --warn-border: #e0a336;
+    --ok-bg: #eaf7ec;
+    --ok-border: #4caf6f;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #14161c;
+      --text: #e7e9ee;
+      --muted: #a2a9b5;
+      --accent: #ffb066;
+      --accent-bg: #2a2013;
+      --card-bg: #1c1f27;
+      --border: #2d313c;
+      --code-bg: #0e1016;
+      --code-text: #d8dce6;
+      --warn-bg: #2a220f;
+      --warn-border: #b8862f;
+      --ok-bg: #10261a;
+      --ok-border: #3f9f66;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #14161c;
+    --text: #e7e9ee;
+    --muted: #a2a9b5;
+    --accent: #ffb066;
+    --accent-bg: #2a2013;
+    --card-bg: #1c1f27;
+    --border: #2d313c;
+    --code-bg: #0e1016;
+    --code-text: #d8dce6;
+    --warn-bg: #2a220f;
+    --warn-border: #b8862f;
+    --ok-bg: #10261a;
+    --ok-border: #3f9f66;
+  }
+  :root[data-theme="light"] {
+    --bg: #ffffff;
+    --text: #1f2430;
+    --muted: #5b6472;
+    --accent: #b05c00;
+    --accent-bg: #fff2e2;
+    --card-bg: #f7f7f9;
+    --border: #e2e4e9;
+    --code-bg: #292d3a;
+    --code-text: #e6e6e6;
+    --warn-bg: #fff4e5;
+    --warn-border: #e0a336;
+    --ok-bg: #eaf7ec;
+    --ok-border: #4caf6f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 1.25rem 4rem;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; }
+  header {
+    padding: 3rem 0 1.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2rem;
+  }
+  h1 { font-size: 1.9rem; margin: 0 0 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 1.05rem; margin: 0; }
+  .meta { color: var(--muted); font-size: 0.85rem; margin-top: 1rem; }
+  h2 {
+    font-size: 1.3rem;
+    margin-top: 2.8rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .step-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  h3 { font-size: 1.05rem; margin-top: 1.5rem; }
+  p { margin: 0.8rem 0; }
+  ul, ol { padding-left: 1.4rem; }
+  li { margin: 0.35rem 0; }
+  code {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.4rem;
+    font-family: "Cascadia Code", Consolas, "SF Mono", monospace;
+    font-size: 0.9em;
+  }
+  pre {
+    background: var(--code-bg);
+    color: var(--code-text);
+    border-radius: 8px;
+    padding: 1rem 1.2rem;
+    overflow-x: auto;
+    font-family: "Cascadia Code", Consolas, "SF Mono", monospace;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+  pre code { background: none; border: none; padding: 0; color: inherit; }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    margin: 1rem 0;
+  }
+  .box {
+    border-radius: 8px;
+    padding: 0.9rem 1.1rem;
+    margin: 1rem 0;
+    border: 1px solid;
+  }
+  .box.warn { background: var(--warn-bg); border-color: var(--warn-border); }
+  .box.ok { background: var(--ok-bg); border-color: var(--ok-border); }
+  .box .label { font-weight: 700; display: block; margin-bottom: 0.3rem; }
+  a { color: var(--accent); }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.92rem;
+  }
+  th, td {
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.7rem;
+    text-align: left;
+  }
+  th { background: var(--card-bg); }
+  .toc {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.4rem;
+  }
+  .toc ol { margin: 0.3rem 0; }
+  .toc a { text-decoration: none; }
+  .toc a:hover { text-decoration: underline; }
+  footer {
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  .tag {
+    display: inline-block;
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-radius: 5px;
+    padding: 0.1rem 0.5rem;
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin-left: 0.4rem;
+  }
+  kbd {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    padding: 0.05rem 0.4rem;
+    font-family: inherit;
+    font-size: 0.9em;
+  }
+  .tabs { margin: 1rem 0; }
+  .tab-buttons {
+    display: flex;
+    gap: 0.4rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.2rem;
+    flex-wrap: wrap;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-size: 0.95rem;
+    font-weight: 600;
+    padding: 0.55rem 0.9rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Instalação do PDI — Pentaho Data Integration</h1>
+  <p class="subtitle">Guia passo a passo para Windows: pré-requisitos, download e primeira execução</p>
+  <p class="meta">Versão utilizada neste guia: PDI Community Edition 9.4.0.0 · Java: Eclipse Temurin JDK 17</p>
+</header>
+
+<div class="toc">
+  <strong>Neste guia:</strong>
+  <ol>
+    <li><a href="#script">Instalação automática (script único)</a></li>
+    <li><a href="#req">Requisitos do sistema</a></li>
+    <li><a href="#java">Instalar o Java (JDK)</a></li>
+    <li><a href="#download">Baixar o PDI Community Edition</a></li>
+    <li><a href="#extrair">Extrair os arquivos</a></li>
+    <li><a href="#executar">Executar o PDI (Spoon)</a></li>
+    <li><a href="#verificar">Verificar se está tudo certo</a></li>
+    <li><a href="#problemas">Problemas comuns</a></li>
+  </ol>
+</div>
+
+<h2 id="script"><span class="step-num">1</span> Instalação automática (script único)</h2>
+<p>Para quem só quer instalar tudo de uma vez, sem seguir os passos manuais um a um: copie o script do seu sistema
+operacional abaixo, cole em um terminal e pressione <kbd>Enter</kbd>. Ele faz sozinho tudo o que está descrito
+nas seções 2 a 6 deste guia: verifica/instala o Java, baixa o PDI, extrai os arquivos e confirma que ficou tudo
+certo.</p>
+
+<div class="tabs">
+  <div class="tab-buttons">
+    <button class="tab-btn active" onclick="showTab('win')">🪟 Windows</button>
+    <button class="tab-btn" onclick="showTab('linux')">🐧 Linux</button>
+    <button class="tab-btn" onclick="showTab('mac')">🍎 macOS</button>
+  </div>
+
+  <div id="tab-win" class="tab-panel active">
+    <div class="box warn">
+      <span class="label">Como abrir o terminal</span>
+      Clique no menu Iniciar, digite <code>PowerShell</code>, clique em <strong>"Windows PowerShell"</strong> (não
+      precisa ser como administrador).
+    </div>
+    <h3>Script completo (copie tudo abaixo)</h3>
+    <pre><code>&lt;#
+    Instalação automática do PDI (Pentaho Data Integration) Community Edition
+    Cole este script inteiro em uma janela do PowerShell e pressione Enter.
+#&gt;
+
+$ErrorActionPreference = "Stop"
+
+function Write-Step($msg) {
+    Write-Host ""
+    Write-Host "==&gt; $msg" -ForegroundColor Cyan
+}
+
+# --- 1. Verificar / instalar Java (JDK 17) ---------------------------------
+Write-Step "Verificando Java..."
+
+$jdkBase = "C:\Program Files\Eclipse Adoptium"
+$jdkFolder = Get-ChildItem $jdkBase -Directory -ErrorAction SilentlyContinue |
+             Where-Object { $_.Name -match "^jdk-1[1-8]" } |
+             Select-Object -First 1 -ExpandProperty FullName
+
+if (-not $jdkFolder) {
+    Write-Host "Java (JDK 11-18) não encontrado. Instalando Eclipse Temurin 17 via winget..."
+    winget install --id EclipseAdoptium.Temurin.17.JDK -e --accept-package-agreements --accept-source-agreements --silent
+    $jdkFolder = Get-ChildItem $jdkBase -Directory -ErrorAction SilentlyContinue |
+                 Where-Object { $_.Name -match "^jdk-17" } |
+                 Select-Object -First 1 -ExpandProperty FullName
+    if (-not $jdkFolder) {
+        throw "Falha ao instalar o Java. Instale manualmente em https://adoptium.net/ e rode este script novamente."
+    }
+} else {
+    Write-Host "Java já instalado em: $jdkFolder"
+}
+
+# Atualiza PATH/JAVA_HOME nesta sessão e de forma permanente para o usuário
+$env:Path = [System.Environment]::GetEnvironmentVariable("Path", "Machine") + ";" +
+            [System.Environment]::GetEnvironmentVariable("Path", "User")
+$env:JAVA_HOME = $jdkFolder
+[System.Environment]::SetEnvironmentVariable("JAVA_HOME", $jdkFolder, "User")
+
+Write-Host (&amp; "$jdkFolder\bin\java.exe" -version 2&gt;&amp;1 | Select-Object -First 1)
+
+# --- 2. Baixar o PDI Community Edition --------------------------------------
+Write-Step "Baixando o PDI Community Edition 9.4.0.0 (~385 MB)..."
+
+$pdiUrl  = "https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pdi-ce-9.4.0.0-343/pdi-ce-9.4.0.0-343.zip"
+$zipPath = "$env:USERPROFILE\Downloads\pdi-ce-9.4.0.0-343.zip"
+$installDir = "C:\pentaho"
+
+if (Test-Path "$installDir\data-integration\Spoon.bat") {
+    Write-Host "PDI já parece estar instalado em $installDir. Pulando download."
+} else {
+    if (-not (Test-Path $zipPath)) {
+        Invoke-WebRequest -Uri $pdiUrl -OutFile $zipPath
+    } else {
+        Write-Host "Arquivo já baixado em $zipPath. Pulando download."
+    }
+
+    # --- 3. Extrair --------------------------------------------------------
+    Write-Step "Extraindo arquivos para $installDir ..."
+    New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+    Expand-Archive -Path $zipPath -DestinationPath $installDir -Force
+}
+
+# --- 4. Confirmar instalação -------------------------------------------------
+Write-Step "Verificando instalação..."
+$spoonPath = "$installDir\data-integration\Spoon.bat"
+if (-not (Test-Path $spoonPath)) {
+    throw "Algo deu errado: $spoonPath não foi encontrado."
+}
+
+Write-Host ""
+Write-Host "Instalação concluída com sucesso!" -ForegroundColor Green
+Write-Host "Para abrir o PDI (Spoon), execute:"
+Write-Host "  cd `"$installDir\data-integration`"; .\Spoon.bat" -ForegroundColor Yellow
+
+# --- 5. Perguntar se deseja abrir o Spoon agora ------------------------------
+$resp = Read-Host "Deseja abrir o Spoon agora? (S/N)"
+if ($resp -match "^[sSyY]") {
+    Start-Process -FilePath $spoonPath -WorkingDirectory "$installDir\data-integration"
+    Write-Host "Abrindo o Spoon... aguarde alguns segundos até a janela aparecer."
+}
+</code></pre>
+    <div class="box warn">
+      <span class="label">⚠ Se aparecer erro sobre "execução de scripts desabilitada"</span>
+      Esse aviso só ocorre ao executar um <strong>arquivo</strong> <code>.ps1</code> salvo no disco, não ao colar o
+      texto direto no terminal. Colando o script e pressionando Enter, ele roda linha a linha sem precisar alterar
+      nenhuma política de execução do PowerShell.
+    </div>
+  </div>
+
+  <div id="tab-linux" class="tab-panel">
+    <div class="box warn">
+      <span class="label">Como abrir o terminal</span>
+      Atalho <code>Ctrl+Alt+T</code> na maioria das distros, ou procure "Terminal" no menu de aplicativos.
+      Testado com foco em <strong>Ubuntu/Debian</strong> (também detecta Fedora/dnf e Arch/pacman).
+    </div>
+    <h3>Script completo (copie tudo abaixo)</h3>
+    <pre><code>#!/usr/bin/env bash
+# Instalação automática do PDI (Pentaho Data Integration) Community Edition — Linux
+# Cole este script inteiro em um terminal bash e pressione Enter,
+# ou salve como arquivo e rode: bash instalar_pdi_linux.sh
+
+set -e
+
+step() { echo ""; echo "==&gt; $1"; }
+
+INSTALL_DIR="$HOME/pentaho"
+ZIP_PATH="$HOME/Downloads/pdi-ce-9.4.0.0-343.zip"
+PDI_URL="https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pdi-ce-9.4.0.0-343/pdi-ce-9.4.0.0-343.zip"
+
+# --- 1. Verificar / instalar Java (11-18) -----------------------------------
+step "Verificando Java..."
+
+java_ok=false
+if command -v java &gt;/dev/null 2&gt;&amp;1; then
+    ver=$(java -version 2&gt;&amp;1 | head -1 | grep -oE '"[0-9]+' | tr -d '"')
+    if [ "$ver" -ge 11 ] 2&gt;/dev/null &amp;&amp; [ "$ver" -le 18 ] 2&gt;/dev/null; then
+        java_ok=true
+        echo "Java $ver já instalado."
+    fi
+fi
+
+if [ "$java_ok" = false ]; then
+    if command -v apt &gt;/dev/null 2&gt;&amp;1; then
+        echo "Instalando OpenJDK 17 via apt (será pedida a senha do sudo)..."
+        sudo apt update
+        sudo apt install -y openjdk-17-jdk
+    elif command -v dnf &gt;/dev/null 2&gt;&amp;1; then
+        echo "Instalando OpenJDK 17 via dnf (será pedida a senha do sudo)..."
+        sudo dnf install -y java-17-openjdk
+    elif command -v pacman &gt;/dev/null 2&gt;&amp;1; then
+        echo "Instalando OpenJDK 17 via pacman (será pedida a senha do sudo)..."
+        sudo pacman -Sy --noconfirm jdk17-openjdk
+    else
+        echo "Não foi possível detectar apt/dnf/pacman. Instale manualmente um JDK 11-18 (64 bits) e rode este script novamente."
+        exit 1
+    fi
+fi
+
+# --- 2. Dependência gráfica opcional (libwebkitgtk) -------------------------
+step "Verificando dependência gráfica (libwebkitgtk)..."
+if command -v apt &gt;/dev/null 2&gt;&amp;1; then
+    sudo apt install -y libwebkitgtk-1.0-0 2&gt;/dev/null \
+        || echo "Aviso: libwebkitgtk-1.0-0 não disponível nesta versão do sistema. O Spoon deve abrir normalmente, mas alguns recursos que usam navegador embutido (ex.: Marketplace) podem não funcionar. Isso é uma limitação conhecida do PDI 9.x em distros mais novas."
+fi
+
+# --- 3. Baixar o PDI Community Edition ---------------------------------------
+step "Baixando o PDI Community Edition 9.4.0.0 (~385 MB)..."
+mkdir -p "$HOME/Downloads"
+
+if [ -f "$INSTALL_DIR/data-integration/spoon.sh" ]; then
+    echo "PDI já parece estar instalado em $INSTALL_DIR. Pulando download."
+else
+    if [ ! -f "$ZIP_PATH" ]; then
+        if command -v curl &gt;/dev/null 2&gt;&amp;1; then
+            curl -L -o "$ZIP_PATH" "$PDI_URL"
+        elif command -v wget &gt;/dev/null 2&gt;&amp;1; then
+            wget -O "$ZIP_PATH" "$PDI_URL"
+        else
+            echo "Nem curl nem wget encontrados. Instale um dos dois e rode o script novamente."
+            exit 1
+        fi
+    else
+        echo "Arquivo já baixado em $ZIP_PATH. Pulando download."
+    fi
+
+    # --- 4. Extrair ----------------------------------------------------------
+    step "Extraindo arquivos para $INSTALL_DIR ..."
+    mkdir -p "$INSTALL_DIR"
+    if ! command -v unzip &gt;/dev/null 2&gt;&amp;1; then
+        echo "Comando 'unzip' não encontrado. Instalando..."
+        if command -v apt &gt;/dev/null 2&gt;&amp;1; then sudo apt install -y unzip; fi
+    fi
+    unzip -o -q "$ZIP_PATH" -d "$INSTALL_DIR"
+fi
+
+chmod +x "$INSTALL_DIR/data-integration/"*.sh 2&gt;/dev/null || true
+
+# --- 5. Confirmar instalação --------------------------------------------------
+step "Verificando instalação..."
+SPOON_PATH="$INSTALL_DIR/data-integration/spoon.sh"
+if [ ! -f "$SPOON_PATH" ]; then
+    echo "Algo deu errado: $SPOON_PATH não foi encontrado."
+    exit 1
+fi
+
+echo ""
+echo "Instalação concluída com sucesso!"
+echo "Para abrir o PDI (Spoon), execute:"
+echo "  cd \"$INSTALL_DIR/data-integration\" &amp;&amp; ./spoon.sh"
+
+# --- 6. Perguntar se deseja abrir o Spoon agora -------------------------------
+read -r -p "Deseja abrir o Spoon agora? (s/N) " resp
+if [[ "$resp" =~ ^[sSyY] ]]; then
+    (cd "$INSTALL_DIR/data-integration" &amp;&amp; ./spoon.sh &amp;)
+    echo "Abrindo o Spoon... aguarde alguns segundos até a janela aparecer."
+fi
+</code></pre>
+    <div class="box warn">
+      <span class="label">⚠ Sobre a interface gráfica (libwebkitgtk)</span>
+      O PDI 9.x usa um componente antigo (GTK2/WebKitGTK 1.0) que não existe mais nos repositórios de distros
+      recentes (Ubuntu 18.04+, por exemplo). O script tenta instalar essa dependência e, se não conseguir, apenas
+      avisa e continua — o Spoon normalmente abre do mesmo jeito, só alguns recursos que dependem de navegador
+      embutido (como o painel Marketplace) podem não funcionar. Isso é uma limitação conhecida da versão 9.4, não
+      um erro do script.
+    </div>
+  </div>
+
+  <div id="tab-mac" class="tab-panel">
+    <div class="box warn">
+      <span class="label">Como abrir o terminal</span>
+      Abra o <strong>Terminal</strong> (Spotlight: <code>Cmd+Espaço</code>, digite "Terminal"). O script usa o
+      <strong>Homebrew</strong> para instalar o Java — se ele ainda não estiver instalado, o script vai avisar e
+      parar, mostrando o comando oficial de instalação do Homebrew.
+    </div>
+    <h3>Script completo (copie tudo abaixo)</h3>
+    <pre><code>#!/usr/bin/env bash
+# Instalação automática do PDI (Pentaho Data Integration) Community Edition — macOS
+# Cole este script inteiro em um terminal (Terminal.app / iTerm) e pressione Enter,
+# ou salve como arquivo e rode: bash instalar_pdi_macos.sh
+
+set -e
+
+step() { echo ""; echo "==&gt; $1"; }
+
+INSTALL_DIR="$HOME/pentaho"
+ZIP_PATH="$HOME/Downloads/pdi-ce-9.4.0.0-343.zip"
+PDI_URL="https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pdi-ce-9.4.0.0-343/pdi-ce-9.4.0.0-343.zip"
+
+# --- 1. Verificar / instalar Java (11-18) -----------------------------------
+step "Verificando Java..."
+
+java_ok=false
+if command -v java &gt;/dev/null 2&gt;&amp;1; then
+    ver=$(java -version 2&gt;&amp;1 | head -1 | grep -oE '"[0-9]+' | tr -d '"')
+    if [ "$ver" -ge 11 ] 2&gt;/dev/null &amp;&amp; [ "$ver" -le 18 ] 2&gt;/dev/null; then
+        java_ok=true
+        echo "Java $ver já instalado."
+    fi
+fi
+
+if [ "$java_ok" = false ]; then
+    if command -v brew &gt;/dev/null 2&gt;&amp;1; then
+        echo "Instalando OpenJDK 17 via Homebrew..."
+        brew install openjdk@17
+        # Disponibiliza o 'java' no PATH desta sessão
+        BREW_PREFIX=$(brew --prefix openjdk@17)
+        export PATH="$BREW_PREFIX/bin:$PATH"
+        export JAVA_HOME="$BREW_PREFIX"
+        # link para o sistema encontrar via /usr/libexec/java_home (opcional, requer sudo)
+        sudo ln -sfn "$BREW_PREFIX/libexec/openjdk.jdk" \
+            "/Library/Java/JavaVirtualMachines/openjdk-17.jdk" 2&gt;/dev/null || true
+    else
+        echo "Homebrew não encontrado. Instale o Homebrew primeiro executando:"
+        echo '  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
+        echo "Depois rode este script novamente."
+        exit 1
+    fi
+fi
+
+# --- 2. Baixar o PDI Community Edition ---------------------------------------
+step "Baixando o PDI Community Edition 9.4.0.0 (~385 MB)..."
+mkdir -p "$HOME/Downloads"
+
+if [ -f "$INSTALL_DIR/data-integration/spoon.sh" ]; then
+    echo "PDI já parece estar instalado em $INSTALL_DIR. Pulando download."
+else
+    if [ ! -f "$ZIP_PATH" ]; then
+        curl -L -o "$ZIP_PATH" "$PDI_URL"
+    else
+        echo "Arquivo já baixado em $ZIP_PATH. Pulando download."
+    fi
+
+    # --- 3. Extrair ----------------------------------------------------------
+    step "Extraindo arquivos para $INSTALL_DIR ..."
+    mkdir -p "$INSTALL_DIR"
+    unzip -o -q "$ZIP_PATH" -d "$INSTALL_DIR"
+fi
+
+chmod +x "$INSTALL_DIR/data-integration/"*.sh 2&gt;/dev/null || true
+
+# Remove o atributo de quarentena do macOS (evita bloqueio do Gatekeeper)
+xattr -dr com.apple.quarantine "$INSTALL_DIR/data-integration" 2&gt;/dev/null || true
+
+# --- 4. Confirmar instalação ---------------------------------------------------
+step "Verificando instalação..."
+SPOON_PATH="$INSTALL_DIR/data-integration/spoon.sh"
+if [ ! -f "$SPOON_PATH" ]; then
+    echo "Algo deu errado: $SPOON_PATH não foi encontrado."
+    exit 1
+fi
+
+echo ""
+echo "Instalação concluída com sucesso!"
+echo "Para abrir o PDI (Spoon), execute:"
+echo "  cd \"$INSTALL_DIR/data-integration\" &amp;&amp; ./spoon.sh"
+echo "(Também há um app nativo em: $INSTALL_DIR/data-integration/Data Integration.app)"
+
+# --- 5. Perguntar se deseja abrir o Spoon agora -------------------------------
+read -r -p "Deseja abrir o Spoon agora? (s/N) " resp
+if [[ "$resp" =~ ^[sSyY] ]]; then
+    (cd "$INSTALL_DIR/data-integration" &amp;&amp; ./spoon.sh &amp;)
+    echo "Abrindo o Spoon... aguarde alguns segundos até a janela aparecer."
+fi
+</code></pre>
+    <div class="box warn">
+      <span class="label">⚠ Gatekeeper / "app de desenvolvedor não identificado"</span>
+      O script já remove a quarentena dos arquivos baixados (<code>xattr -dr com.apple.quarantine</code>). Se ainda
+      assim o macOS bloquear a execução, vá em <strong>Ajustes do Sistema → Privacidade e Segurança</strong> e
+      autorize a abertura.
+    </div>
+  </div>
+</div>
+
+<div class="box ok">
+  <span class="label">✔ O que o script faz, em ordem (nas três plataformas)</span>
+  <ol>
+    <li>Verifica se já existe um Java 11-18 instalado; se não houver, instala automaticamente (winget / apt / dnf / pacman / Homebrew, conforme o sistema)</li>
+    <li>Configura as variáveis de ambiente necessárias</li>
+    <li>Baixa o PDI Community Edition 9.4.0.0 (~385 MB)</li>
+    <li>Extrai os arquivos na pasta do usuário (<code>pentaho/data-integration</code>)</li>
+    <li>Confirma que a instalação ficou correta</li>
+    <li>Pergunta se o aluno quer abrir o Spoon (interface gráfica) imediatamente</li>
+  </ol>
+  Os scripts são seguros para rodar mais de uma vez: detectam o que já está instalado/baixado e pulam essas etapas.
+</div>
+
+<h2 id="req"><span class="step-num">2</span> Requisitos do sistema</h2>
+<p class="subtitle" style="margin-top:-0.5rem;">As seções abaixo explicam o mesmo processo manualmente, passo a passo — útil para entender o que o script faz ou para instalar sem o script.</p>
+<table>
+  <tr><th>Item</th><th>Requisito</th></tr>
+  <tr><td>Sistema operacional</td><td>Windows 10/11, Linux (Ubuntu/Debian, Fedora, Arch) ou macOS — sempre 64 bits</td></tr>
+  <tr><td>Java</td><td>JDK 64 bits, versão entre 11 e 18 (recomendado: 17)</td></tr>
+  <tr><td>Memória RAM</td><td>Mínimo 4 GB — recomendado 8 GB ou mais</td></tr>
+  <tr><td>Espaço em disco</td><td>Pelo menos 10 GB livres</td></tr>
+  <tr><td>Internet</td><td>Necessária apenas durante o download (~385 MB)</td></tr>
+</table>
+<p class="subtitle">As seções 3 a 7 abaixo usam exemplos de Windows (PowerShell). Os comandos equivalentes de Linux/macOS estão nos scripts da seção 1.</p>
+
+<h2 id="java"><span class="step-num">3</span> Instalar o Java (JDK)</h2>
+<p>O PDI é um aplicativo Java e não funciona sem um JDK instalado. Vamos usar o <strong>Eclipse Temurin</strong>
+(distribuição gratuita e confiável do OpenJDK).</p>
+
+<h3>Opção A — Via winget (recomendado, mais rápido)</h3>
+<p>Abra o <strong>PowerShell</strong> e execute:</p>
+<pre><code>winget install --id EclipseAdoptium.Temurin.17.JDK -e</code></pre>
+<p>Siga as instruções na tela e aceite os termos. A instalação é automática.</p>
+
+<h3>Opção B — Manual, pelo site</h3>
+<ol>
+  <li>Acesse <a href="https://adoptium.net/">adoptium.net</a></li>
+  <li>Escolha <strong>Temurin 17 (LTS)</strong>, sistema <strong>Windows</strong>, arquitetura <strong>x64</strong>, pacote <strong>JDK</strong></li>
+  <li>Baixe o instalador <code>.msi</code> e execute-o</li>
+  <li>Durante a instalação, marque a opção <strong>"Set JAVA_HOME variable"</strong>, se disponível</li>
+</ol>
+
+<div class="box ok">
+  <span class="label">✔ Como conferir se o Java foi instalado</span>
+  Feche e abra um <strong>novo</strong> PowerShell (importante: precisa ser uma janela nova) e digite:
+  <pre><code>java -version</code></pre>
+  Deve aparecer algo como <code>openjdk version "17.0.x"</code>.
+</div>
+
+<h2 id="download"><span class="step-num">4</span> Baixar o PDI Community Edition</h2>
+<ol>
+  <li>Acesse o link de download direto (versão 9.4.0.0):
+    <br><a href="https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pdi-ce-9.4.0.0-343/pdi-ce-9.4.0.0-343.zip">
+    github.com/ambientelivre/legacy-pentaho-ce (release pdi-ce-9.4.0.0-343)</a></li>
+  <li>O download é um arquivo <code>.zip</code> de aproximadamente <strong>385 MB</strong> — pode levar alguns minutos</li>
+  <li>Salve o arquivo em <code>Downloads</code> (ou local de sua preferência)</li>
+</ol>
+<p><strong>Alternativa via PowerShell</strong> (baixa direto sem usar o navegador):</p>
+<pre><code>Invoke-WebRequest -Uri "https://github.com/ambientelivre/legacy-pentaho-ce/releases/download/pdi-ce-9.4.0.0-343/pdi-ce-9.4.0.0-343.zip" -OutFile "$env:USERPROFILE\Downloads\pdi-ce-9.4.0.0-343.zip"</code></pre>
+
+<h2 id="extrair"><span class="step-num">5</span> Extrair os arquivos</h2>
+<ol>
+  <li>Crie uma pasta de destino, por exemplo <code>C:\pentaho</code></li>
+  <li>Clique com o botão direito no arquivo <code>.zip</code> baixado e escolha <strong>"Extrair tudo..."</strong>,
+    apontando para a pasta criada — ou use o PowerShell:</li>
+</ol>
+<pre><code>New-Item -ItemType Directory -Force -Path "C:\pentaho"
+Expand-Archive -Path "$env:USERPROFILE\Downloads\pdi-ce-9.4.0.0-343.zip" -DestinationPath "C:\pentaho"</code></pre>
+<p>Ao final, você deve ter uma pasta <code>C:\pentaho\data-integration</code> contendo arquivos como
+<code>Spoon.bat</code>, <code>Kitchen.bat</code>, <code>Pan.bat</code>, entre outros.</p>
+
+<h2 id="executar"><span class="step-num">6</span> Executar o PDI (Spoon)</h2>
+<p>O <strong>Spoon</strong> é a interface gráfica do PDI, usada para criar transformações e jobs de ETL.</p>
+<ol>
+  <li>Navegue até a pasta <code>C:\pentaho\data-integration</code></li>
+  <li>Dê duplo clique em <code>Spoon.bat</code></li>
+  <li>Uma janela de console (preta) vai abrir rapidamente — é normal, ela inicializa o ambiente Java</li>
+  <li>Após 15–30 segundos, a interface gráfica do Spoon deve abrir</li>
+</ol>
+<p><strong>Via PowerShell</strong>, o mesmo pode ser feito com:</p>
+<pre><code>cd "C:\pentaho\data-integration"
+.\Spoon.bat</code></pre>
+
+<h2 id="verificar"><span class="step-num">7</span> Verificar se está tudo certo</h2>
+<div class="box ok">
+  <span class="label">✔ Instalação correta se:</span>
+  <ul>
+    <li>A janela do Spoon abre sem mensagens de erro</li>
+    <li>É possível criar uma <strong>nova transformação</strong> (menu <em>Arquivo → Novo → Transformação</em>)</li>
+    <li>É possível arrastar um passo (ex.: "Text file input") para a área de trabalho</li>
+  </ul>
+</div>
+
+<h2 id="problemas"><span class="step-num">8</span> Problemas comuns</h2>
+
+<div class="card">
+  <strong>"java não é reconhecido como comando"</strong>
+  <p>O PATH do Windows só é atualizado em janelas do PowerShell/CMD abertas <em>depois</em> da instalação do Java.
+  Feche a janela atual e abra uma nova.</p>
+</div>
+
+<div class="card">
+  <strong>O Spoon não abre / fecha sozinho</strong>
+  <p>Verifique se o Java instalado é de <strong>64 bits</strong> e está entre as versões 11 e 18. Rode
+  <code>java -version</code> para confirmar.</p>
+</div>
+
+<div class="card">
+  <strong>Erro de memória (OutOfMemoryError)</strong>
+  <p>Edite o arquivo <code>Spoon.bat</code> dentro da pasta <code>data-integration</code> e ajuste os valores de
+  memória (parâmetros <code>-Xms</code> e <code>-Xmx</code>) próximos ao início do arquivo, aumentando-os se a
+  máquina tiver RAM suficiente.</p>
+</div>
+
+<div class="card">
+  <strong>No Linux, o Spoon não abre (interface gráfica)</strong>
+  <p>Instale a dependência <code>libwebkitgtk-1.0-0</code> antes de rodar <code>spoon.sh</code>.</p>
+</div>
+
+<footer>
+  Guia elaborado para fins didáticos — versão Community Edition (gratuita) do Pentaho Data Integration, mantida via
+  repositório de terceiros por descontinuação da distribuição oficial da Hitachi Vantara.
+</footer>
+
+</div>
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.tab-panel').forEach(function (el) {
+      el.classList.toggle('active', el.id === 'tab-' + name);
+    });
+    document.querySelectorAll('.tab-btn').forEach(function (btn, i) {
+      var names = ['win', 'linux', 'mac'];
+      btn.classList.toggle('active', names[i] === name);
+    });
+  }
+</script>
+</body>
+</html>
