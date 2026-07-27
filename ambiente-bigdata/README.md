@@ -1,6 +1,7 @@
 # Ambiente Big Data — PostgreSQL + Hadoop + Airflow
 
 Ambiente para acompanhar as aulas de engenharia de dados da Digital College.
+
 Em caso de formatação ou troca de máquina, ou não ter participado das aulas de passo a passo,
 basta rodar os comandos abaixo para subir o ambiente.
 

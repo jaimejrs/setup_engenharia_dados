@@ -1,1 +1,1 @@
-Ambientes backup para acompanhar as aulas de engenharia de dados da Digital College
+Tutoriais de instalação de ferramentas necessárias para o curso de Data Analytics ou de Python da Digital College
